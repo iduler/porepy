@@ -149,26 +149,25 @@ class BoundaryConditionsMechanicsNeumann((pp.PorePyModel)):
         bc.internal_to_dirichlet(sd)
 
         # West side: Roller (ux = 0)
-        bc.is_dir[0, domain_sides.west] = True
-        bc.is_neu[0, domain_sides.west] = False
+        # bc.is_dir[0, domain_sides.west] = True
+        # bc.is_neu[0, domain_sides.west] = False
 
         # South side: Roller (uy = 0)
-        bc.is_dir[1, domain_sides.north] = True
-        bc.is_neu[1, domain_sides.north] = False
+        #  bc.is_dir[1, domain_sides.north] = True
+        # bc.is_neu[1, domain_sides.north] = False
 
        
         faces_to_fix = self.faces_to_fix(sd)
 
         dir = [
-        # np.array([True, True]), # Fix yon face 1 (west) in y. 
-        # np.array([False, True]),  # Fix y and x on face 2 (east). 
-        # np.array([False, True]),
-        ] # Fix y on face 3 (North).
+         np.array([False, True]), # Fix yon face 1 (west) in y. 
+         np.array([False, True]),  # Fix y and x on face 2 (east). 
+         np.array([True, False]),] # Fix y on face 3 (North).
         
         # ~(invert True/False). Set dir on one face.
-        #for i, face in enumerate(faces_to_fix):
-        #bc.is_dir[:, face] = dir[i]
-        # bc.is_neu[:, face] = ~dir[i]  
+        for i, face in enumerate(faces_to_fix):
+            bc.is_dir[:, face] = dir[i]
+            bc.is_neu[:, face] = ~dir[i]  
     
         return bc
 
@@ -201,13 +200,13 @@ class BoundaryConditionsMechanicsNeumann((pp.PorePyModel)):
         ]
         # Point 3 is on the center top of the north boundary, having min y coordinate
         # and mean x coordinate.
-        point_3 = np.array([x_mean, box["ymax"]])
+        point_3 = np.array([x_mean, box["ymin"]])
         pts = sd.face_centers[:2, domain_sides.north]
         ind_3 = domain_sides.north.nonzero()[0][
             np.argmin(pp.distances.point_pointset(point_3, pts))
         ]
 
-        return [ind_2]
+        return [ind_1, ind_2, ind_3]
 
 class LithostaticBoundaryStressValues(pp.PorePyModel):
 
